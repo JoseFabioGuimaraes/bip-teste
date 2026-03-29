@@ -1,0 +1,41 @@
+# OS# OS
+
+
+
+
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# IDEs
+.idea/
+.vscode/
+.settings/
+.classpath
+.project
+*.iml
+
+# Java / Maven
+**/target/
+**/.mvn/
+
+# Node / Angular
+**/node_modules/
+**/dist/
+**/.angular/
+**/coverage/
+**/.cache/
+**/out-tsc/
+
+# Test artifacts
+**/junit/
+**/tmp/
+
+# Env
+.env
+.env.*

@@ -1,0 +1,50 @@
+<section class="transfer-shell position-relative">
+  <div class="card transfer-card">
+    <div class="card-body p-4">
+      <h2 class="mb-2">Transferencia Financeira</h2>
+      <p class="text-muted mb-4">Operacao com lock pessimista para garantir consistencia de saldo.</p>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" class="row g-3">
+        <div class="col-12 col-md-6">
+          <label class="form-label" for="fromId">Conta origem</label>
+          <select id="fromId" class="form-select" formControlName="fromId">
+            <option [ngValue]="null">Selecione</option>
+            <option *ngFor="let beneficio of (beneficios$ | async)" [ngValue]="beneficio.id">
+              {{ beneficio.id }} - {{ beneficio.nome }}
+            </option>
+          </select>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <label class="form-label" for="toId">Conta destino</label>
+          <select id="toId" class="form-select" formControlName="toId">
+            <option [ngValue]="null">Selecione</option>
+            <option *ngFor="let beneficio of (beneficios$ | async)" [ngValue]="beneficio.id">
+              {{ beneficio.id }} - {{ beneficio.nome }}
+            </option>
+          </select>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <label class="form-label" for="amount">Valor</label>
+          <input id="amount" class="form-control" type="number" min="0.01" step="0.01" formControlName="amount" />
+        </div>
+
+        <div class="col-12" *ngIf="form.hasError('sameAccount')">
+          <p class="text-danger mb-0">Conta de origem e destino devem ser diferentes.</p>
+        </div>
+
+        <div class="col-12">
+          <button class="btn btn-primary" type="submit" [disabled]="isLoading">
+            {{ isLoading ? 'Processando...' : 'Transferir' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="transfer-overlay" *ngIf="isLoading">
+    <div class="spinner-border text-light" role="status" aria-label="Carregando"></div>
+    <p class="mb-0 mt-3">Executando transferencia com bloqueio transacional...</p>
+  </div>
+</section>

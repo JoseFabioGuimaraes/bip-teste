@@ -1,0 +1,66 @@
+<section class="dashboard-shell">
+  <div class="dashboard-header">
+    <h2 class="mb-1">Dashboard de Beneficios</h2>
+    <p class="text-muted mb-0">Visao consolidada de saldos com acoes de manutencao.</p>
+  </div>
+
+  <ng-container *ngIf="beneficios$ | async as beneficios">
+    <div *ngIf="beneficios.length > 0; else emptyState" class="row g-3 mb-4">
+      <div class="col-12 col-md-6 col-xl-4" *ngFor="let beneficio of beneficios">
+        <article class="card dashboard-card h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+              <span class="badge text-bg-light border">#{{ beneficio.id }}</span>
+              <span class="status-pill" [class.inativo]="!beneficio.ativo">
+                {{ beneficio.ativo ? 'Ativo' : 'Inativo' }}
+              </span>
+            </div>
+
+            <h5 class="card-title mt-3 mb-2">{{ beneficio.nome }}</h5>
+            <p class="text-muted mb-3">{{ beneficio.descricao || 'Sem descricao cadastrada.' }}</p>
+
+            <div class="saldo-wrap mb-3">
+              <small class="text-muted">Saldo atual</small>
+              <div class="saldo">
+                {{ formatCurrency(beneficio.valor) }}
+              </div>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-primary btn-sm" type="button" (click)="handleEdit(beneficio)">Editar</button>
+              <button class="btn btn-outline-danger btn-sm" type="button" (click)="handleDelete(beneficio.id)">Excluir</button>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+
+  </ng-container>
+
+  <section *ngIf="selectedBeneficio" class="card p-3 mt-3">
+    <h5 class="mb-3">Editar Beneficio #{{ selectedBeneficio.id }}</h5>
+    <form [formGroup]="editForm" (ngSubmit)="submitEdit()" class="row g-3">
+      <div class="col-12 col-md-6">
+        <label class="form-label" for="nome">Nome</label>
+        <input id="nome" type="text" class="form-control" formControlName="nome" />
+      </div>
+
+      <div class="col-12 col-md-6">
+        <label class="form-label" for="descricao">Descricao</label>
+        <input id="descricao" type="text" class="form-control" formControlName="descricao" />
+      </div>
+
+      <div class="col-12 d-flex gap-2">
+        <button class="btn btn-primary" type="submit">Salvar</button>
+        <button class="btn btn-secondary" type="button" (click)="cancelEdit()">Cancelar</button>
+      </div>
+    </form>
+  </section>
+
+  <ng-template #emptyState>
+    <div class="empty-state">
+      <h5 class="mb-2">Nenhum beneficio cadastrado</h5>
+      <p class="text-muted mb-0">A lista esta vazia no momento. Crie ou recarregue dados para visualizar os cards.</p>
+    </div>
+  </ng-template>
+</section>

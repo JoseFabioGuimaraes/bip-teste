@@ -1,0 +1,45 @@
+.toast-notification {
+  align-items: center;
+  border-radius: 10px;
+  bottom: 1.5rem;
+  display: flex;
+  font-weight: 600;
+  gap: 1rem;
+  max-width: 520px;
+  min-width: 320px;
+  padding: 0.9rem 1.1rem;
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1100;
+}
+
+.toast-notification.success {
+  background: linear-gradient(160deg, rgba(0, 174, 239, 0.2) 0%, #ecfaff 100%);
+  border: 1px solid rgba(0, 174, 239, 0.45);
+  color: #005f81;
+}
+
+.toast-notification.error {
+  background: linear-gradient(160deg, rgba(108, 42, 0, 0.17) 0%, #fff3ea 100%);
+  border: 1px solid rgba(108, 42, 0, 0.4);
+  color: #6c2a00;
+}
+
+.close-btn {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  font-size: 1rem;
+  margin-left: auto;
+  padding: 0;
+}
+
+@media (max-width: 576px) {
+  .toast-notification {
+    left: 1rem;
+    min-width: auto;
+    right: 1rem;
+    transform: none;
+  }
+}

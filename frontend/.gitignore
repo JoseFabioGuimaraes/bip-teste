@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.angular/
+coverage/
+.cache/
+out-tsc/
+.vscode/
+*.log
+
+# Test artifacts
+/junit/
+/tmp/

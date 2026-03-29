@@ -1,0 +1,15 @@
+<main class="app-shell">
+  <header class="app-header">
+    <h1 class="brand-title">Sistema de Beneficios</h1>
+    <nav class="app-nav">
+      <a routerLink="/beneficios" routerLinkActive="active">Beneficios</a>
+      <a routerLink="/transferencia" routerLinkActive="active">Transferencia</a>
+    </nav>
+  </header>
+
+  <section class="content-card">
+    <router-outlet></router-outlet>
+  </section>
+</main>
+
+<app-feedback-message></app-feedback-message>

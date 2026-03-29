@@ -1,0 +1,6 @@
+<ng-container *ngIf="toast$ | async as toast">
+  <div *ngIf="toast" class="toast-notification shadow" [ngClass]="toast.type">
+    <span>{{ toast.message }}</span>
+    <button type="button" class="close-btn" (click)="close()" aria-label="Fechar">x</button>
+  </div>
+</ng-container>

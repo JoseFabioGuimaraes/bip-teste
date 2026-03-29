@@ -1,0 +1,27 @@
+<div class="table-responsive mt-3" *ngIf="beneficios.length > 0">
+  <table class="table table-hover align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>ID</th>
+        <th>Nome</th>
+        <th>Descricao</th>
+        <th class="text-end">Saldo</th>
+        <th class="text-end">Acoes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let beneficio of beneficios">
+        <td>{{ beneficio.id }}</td>
+        <td>{{ beneficio.nome }}</td>
+        <td>{{ beneficio.descricao || '-' }}</td>
+        <td class="text-end fw-semibold">{{ beneficio.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
+        <td class="text-end">
+          <div class="d-inline-flex gap-2">
+            <button class="btn btn-outline-primary btn-sm" type="button" (click)="onEdit(beneficio)">Editar</button>
+            <button class="btn btn-outline-danger btn-sm" type="button" (click)="onDelete(beneficio.id)">Excluir</button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

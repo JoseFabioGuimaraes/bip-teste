@@ -1,0 +1,13 @@
+# Build outputs
+target/
+
+# IDEs
+.idea/
+.settings/
+.classpath
+.project
+*.iml
+
+# Logs
+*.log
+logs/
