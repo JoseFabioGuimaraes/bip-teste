@@ -15,6 +15,18 @@ Fluxo principal da aplicacao:
 
 Essa composicao evita acoplamento entre API e persistencia, facilita testes de integracao e melhora manutenabilidade.
 
+## Decisao de integracao EJB (escopo do desafio)
+Este projeto utiliza o `ejb-module` como nucleo legado de regra de negocio dentro do runtime Spring Boot.
+
+- O foco do desafio foi preservar as regras legadas do `BeneficioEjbService` e corrigir concorrencia/transacoes.
+- Nao foi adotado deploy em container EJB dedicado (com lookup JNDI remoto), para manter simplicidade operacional no escopo da avaliacao.
+- O gerenciamento transacional e de persistencia ocorre no ecossistema Spring + JPA/Hibernate, mantendo separacao de responsabilidades entre API, aplicacao e dominio.
+
+Essa escolha segue principios de arquitetura limpa e SOLID:
+- `SRP`: controller trata HTTP, service orquestra caso de uso, modulo legado concentra regra de negocio.
+- `DIP`: camadas externas dependem de contratos/servicos, nao de detalhes de UI ou infraestrutura.
+- `OCP`: regras de transferencia permanecem encapsuladas e extensiveis sem alterar a borda HTTP.
+
 ## Lock pessimista e integridade transacional
 As transferencias usam `LockModeType.PESSIMISTIC_WRITE` para bloquear as linhas de origem e destino durante a transacao.
 
@@ -38,6 +50,17 @@ A classe `GlobalExceptionHandler` responde em JSON padrao:
 Mapeamentos principais:
 - `400`: `IllegalArgumentException`, `IllegalStateException`
 - `404`: `EntityNotFoundException`
+
+## Escopo funcional entregue
+Endpoints implementados e auditados:
+
+- `GET /api/v1/beneficios`: listar beneficios.
+- `GET /api/v1/beneficios/{id}`: consultar beneficio por ID.
+- `PUT /api/v1/beneficios/{id}`: atualizar nome/descricao.
+- `DELETE /api/v1/beneficios/{id}`: excluir beneficio.
+- `POST /api/v1/beneficios/transfer`: transferir saldo com lock pessimista.
+
+Observacao de escopo: o endpoint de criacao (`POST /api/v1/beneficios`) nao foi implementado nesta entrega, pois a prioridade tecnica foi a correcao do bug critico de concorrencia na transferencia e a integracao fim a fim DB -> EJB -> Spring -> Angular.
 
 ## Como executar
 Pre-requisitos:

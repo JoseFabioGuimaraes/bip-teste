@@ -84,6 +84,22 @@ O bug critico de transferencia foi tratado com uma estrategia de consistencia fo
 ## Decisoes Arquiteturais
 Integracao do Modulo EJB e Modernizacao: Optou-se por uma abordagem de modernizacao pragmatica para a integracao do EJB. Em vez de acoplar a aplicacao a um conteiner Java EE pesado (como WildFly ou JBoss) apenas para realizar o lookup via JNDI, o servico EJB foi acoplado ao ecossistema Spring Boot, atuando puramente como o nucleo de regras de negocio. Com essa adaptacao, a responsabilidade pelo gerenciamento do ciclo de vida, controle transacional e concorrencia (Pessimistic Locking) foi delegada ao Spring e ao Hibernate (via @Transactional). Esta decisao arquitetural garante a integridade atomica das operacoes financeiras, simplifica drasticamente a esteira de deploy, facilita a cobertura de testes e alinha o projeto com praticas modernas de arquiteturas cloud-native.
 
+### Alinhamento com SOLID e Arquitetura Limpa
+- `SRP`: cada camada possui responsabilidade unica (HTTP, orquestracao de caso de uso, regra legada, persistencia).
+- `DIP`: o backend depende da abstracao de servicos de aplicacao, reduzindo acoplamento com detalhes de entrega.
+- `OCP`: regras de negocio no modulo legado podem evoluir sem quebrar contrato HTTP existente.
+- Dependencias direcionadas para dentro (API -> aplicacao -> dominio), mantendo fronteiras claras entre camadas.
+
+## Escopo funcional entregue
+Funcionalidades entregues nesta versao:
+
+- Consulta de beneficios (`GET /beneficios` e `GET /beneficios/{id}`).
+- Atualizacao de beneficio (`PUT /beneficios/{id}`).
+- Exclusao de beneficio (`DELETE /beneficios/{id}`).
+- Transferencia com validacoes de negocio, lock pessimista e testes de concorrencia (`POST /beneficios/transfer`).
+
+Observacao de escopo: a criacao de beneficio (`POST /beneficios`) nao foi implementada nesta iteracao. A prioridade foi resolver o bug critico de concorrencia da transferencia e garantir consistencia transacional ponta a ponta.
+
 ## Documentacao da API
 Apos subir o backend, os contratos da API ficam disponiveis via Swagger/OpenAPI em:
 
