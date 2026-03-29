@@ -176,6 +176,65 @@ class TransferenciaConcurrencyTest {
         assertEquals(new BigDecimal("1500.00"), contaB.getValor());
     }
 
+    @Test
+    void deveTransferirComSucessoEmCenarioDeConcorrenciaCruzadaSemDeadlock() throws Exception {
+        int totalThreads = 10;
+        int halfThreads = totalThreads / 2;
+
+        ExecutorService executor = Executors.newFixedThreadPool(totalThreads);
+        CountDownLatch readyLatch = new CountDownLatch(totalThreads);
+        CountDownLatch startLatch = new CountDownLatch(1);
+
+        List<Future<ResponseEntity<String>>> futures = new ArrayList<>();
+        for (int i = 0; i < totalThreads; i++) {
+            final boolean fromAToB = i < halfThreads;
+            futures.add(executor.submit(() -> {
+                readyLatch.countDown();
+                startLatch.await();
+
+                Long fromId = fromAToB ? 1L : 2L;
+                Long toId = fromAToB ? 2L : 1L;
+                return restTemplate.postForEntity(
+                        url("/api/v1/beneficios/transfer"),
+                        transferRequest(fromId, toId, "50.00"),
+                        String.class
+                );
+            }));
+        }
+
+        assertTrue(readyLatch.await(5, TimeUnit.SECONDS), "Threads did not become ready in time");
+        startLatch.countDown();
+
+        for (Future<ResponseEntity<String>> future : futures) {
+            ResponseEntity<String> response = future.get(10, TimeUnit.SECONDS);
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+        }
+
+        executor.shutdown();
+        assertTrue(executor.awaitTermination(10, TimeUnit.SECONDS), "Executor did not finish in time");
+
+        ResponseEntity<BeneficioPayload> contaAResponse = restTemplate.getForEntity(
+                url("/api/v1/beneficios/1"),
+                BeneficioPayload.class
+        );
+        ResponseEntity<BeneficioPayload> contaBResponse = restTemplate.getForEntity(
+                url("/api/v1/beneficios/2"),
+                BeneficioPayload.class
+        );
+
+        assertEquals(HttpStatus.OK, contaAResponse.getStatusCode());
+        assertEquals(HttpStatus.OK, contaBResponse.getStatusCode());
+
+        BeneficioPayload contaA = contaAResponse.getBody();
+        BeneficioPayload contaB = contaBResponse.getBody();
+
+        assertNotNull(contaA);
+        assertNotNull(contaB);
+
+        BigDecimal saldoTotal = contaA.getValor().add(contaB.getValor());
+        assertEquals(new BigDecimal("1500.00"), saldoTotal);
+    }
+
     private String url(String path) {
         return "http://localhost:" + port + path;
     }

@@ -60,8 +60,14 @@ public class BeneficioEjbService {
             throw new IllegalArgumentException("transfer amount must be greater than zero");
         }
 
-        Beneficio from = em.find(Beneficio.class, fromId, LockModeType.PESSIMISTIC_WRITE);
-        Beneficio to = em.find(Beneficio.class, toId, LockModeType.PESSIMISTIC_WRITE);
+        Long firstLockId = Math.min(fromId, toId);
+        Long secondLockId = Math.max(fromId, toId);
+
+        Beneficio firstLocked = em.find(Beneficio.class, firstLockId, LockModeType.PESSIMISTIC_WRITE);
+        Beneficio secondLocked = em.find(Beneficio.class, secondLockId, LockModeType.PESSIMISTIC_WRITE);
+
+        Beneficio from = fromId.equals(firstLockId) ? firstLocked : secondLocked;
+        Beneficio to = toId.equals(firstLockId) ? firstLocked : secondLocked;
 
         if (from == null || to == null) {
             throw new EntityNotFoundException("beneficio not found for source or target id");
