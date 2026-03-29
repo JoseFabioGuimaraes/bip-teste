@@ -1,16 +1,17 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { BehaviorSubject, Observable, catchError, map, tap, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, map, of, switchMap, tap, throwError } from 'rxjs';
 
 import { Beneficio } from '../models/beneficio.model';
 import { CustomError } from '../models/custom-error.model';
 import { TransferRequest } from '../models/transfer-request.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BeneficioService {
-  private readonly apiUrl = 'http://localhost:8081/api/v1/beneficios';
+  private readonly apiUrl = `${environment.apiBaseUrl}/api/v1/beneficios`;
 
   private readonly beneficiosSubject = new BehaviorSubject<Beneficio[]>([]);
   readonly beneficios$ = this.beneficiosSubject.asObservable();
@@ -25,12 +26,8 @@ export class BeneficioService {
     );
   }
 
-  refreshBeneficios(): void {
-    this.loadBeneficios().subscribe({
-      error: () => {
-        // O estado de erro e exibido na UI pelos componentes chamadores.
-      }
-    });
+  refreshBeneficios(): Observable<Beneficio[]> {
+    return this.loadBeneficios();
   }
 
   getBeneficioById(id: number): Observable<Beneficio> {
@@ -65,7 +62,12 @@ export class BeneficioService {
 
   transferir(payload: TransferRequest): Observable<string> {
     return this.http.post(`${this.apiUrl}/transfer`, payload, { responseType: 'text' }).pipe(
-      tap(() => this.refreshBeneficios()),
+      switchMap((responseMessage) =>
+        this.refreshBeneficios().pipe(
+          map(() => responseMessage),
+          catchError(() => of(responseMessage))
+        )
+      ),
       catchError((error: HttpErrorResponse) => this.handleHttpError(error))
     );
   }
@@ -77,7 +79,7 @@ export class BeneficioService {
     }
 
     if (error.status === 0) {
-      return throwError(() => new Error('Nao foi possivel conectar ao backend em http://localhost:8081.'));
+      return throwError(() => new Error(`Nao foi possivel conectar ao backend em ${environment.apiBaseUrl}.`));
     }
 
     return throwError(() => new Error('Ocorreu um erro inesperado ao processar a solicitacao.'));
@@ -103,9 +105,7 @@ export class BeneficioService {
         if (this.isCustomError(parsed)) {
           return parsed.error;
         }
-      } catch {
-        // Se nao for JSON valido, retorna a propria string.
-      }
+      } catch {      }
 
       return payload;
     }
